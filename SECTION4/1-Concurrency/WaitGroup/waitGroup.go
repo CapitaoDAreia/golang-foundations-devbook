@@ -22,12 +22,12 @@ func main() {
 
 	go func() {
 		writeScreen("First Function")
-		waitGroup.Done()
+		waitGroup.Done() //decrement waitgroup.add
 	}()
 
 	go func() {
 		writeScreen("Second Function")
-		waitGroup.Done()
+		waitGroup.Done() //decrement waitgroup.add
 	}()
 
 	waitGroup.Wait() //This statement force execution to wait for the goroutines.
