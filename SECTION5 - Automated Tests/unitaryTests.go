@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	typeAddress := address.TypeAddress("Rua Alta")
+	typeAddress := address.TypeAddress("Avenida Alta")
 	fmt.Println(typeAddress)
 }
