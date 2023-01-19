@@ -1,0 +1,10 @@
+{
+    "name": "Igor",
+    "surname": "Silva",
+    "features": {
+        "ugly": true,
+        "happy": true,
+        "rich": false,
+        "thankful": true
+    }
+}
