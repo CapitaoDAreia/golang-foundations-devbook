@@ -24,6 +24,9 @@ func main() {
 	//PUT
 	router.HandleFunc("/user/{id}", server.UpdateUser).Methods("PUT")
 
+	//DELETE
+	router.HandleFunc("/user/{id}", server.DeleteUser).Methods("DELETE")
+
 	//General configs
 	var PORT string = ":80"
 	fmt.Printf("Server is listening on port %v\n", PORT)

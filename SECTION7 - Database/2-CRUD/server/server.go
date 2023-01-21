@@ -197,3 +197,43 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(200)
 }
+
+// DELETE USER
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+	if ID == 0 {
+		w.WriteHeader(404)
+		w.Write([]byte("ID not found on database."))
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Error on catch ID on params."))
+		return
+	}
+
+	DB, err := database.Connect()
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Error on connect with database."))
+		return
+	}
+	defer DB.Close()
+
+	statement, err := DB.Prepare("delete from users where id = ?")
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Error on create statement."))
+		return
+	}
+	defer statement.Close()
+
+	if _, err := statement.Exec(ID); err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Error on execute statement."))
+		return
+	}
+
+	w.WriteHeader(200)
+}
