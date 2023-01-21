@@ -110,8 +110,8 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 
 // Search User
 func SearchUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	ID, err := strconv.ParseUint(params["id"], 10, 64)
+	params := mux.Vars(r)                              //Catch parameters
+	ID, err := strconv.ParseUint(params["id"], 10, 64) //Catch ID in parameters
 	if err != nil {
 		w.Write([]byte("SearchUser: Error on convert param to int."))
 		return
@@ -123,12 +123,13 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row, err := DB.Query("select * from users where id = ?", ID)
+	row, err := DB.Query("select * from users where id = ?", ID) //Search for user in DB.
 	if err != nil {
 		w.Write([]byte("SearchUser: Error on search for user."))
 		return
 	}
 
+	//Iterates over ROW, returned by query, and parse values to user var.
 	var user user
 	if row.Next() {
 		if err := row.Scan(&user.Id, &user.Name, &user.Email); err != nil {
@@ -139,8 +140,60 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(200)
 
+	//Parse user to json and send response
 	if err := json.NewEncoder(w).Encode(user); err != nil {
 		w.Write([]byte("SearchUser: Error on convert user to JSON."))
 		return
 	}
+}
+
+// SEARCH USER
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		w.Write([]byte("UpdateUser: Error on handle ID."))
+		return
+	}
+
+	bodyRequest, err := ioutil.ReadAll(r.Body) //catch bodyRequest
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("UpdateUser: Error on read bodyrequest."))
+		return
+	}
+
+	//parse the bodyRequest to newUser var
+	var newUser user
+	if err = json.Unmarshal(bodyRequest, &newUser); err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("UpdateUser: Error on convert bodyRequest user to JSON"))
+		return
+	}
+
+	DB, err := database.Connect()
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("UpdateUser: Error on connect with database"))
+		return
+	}
+	defer DB.Close()
+
+	//Prepare statement to insert bodyRequest data on database
+	statement, err := DB.Prepare("update users set name = ?, email = ? where id = ?")
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("UpdateUser: Error on create statement."))
+		return
+	}
+	defer statement.Close()
+
+	//Execute statement to inser bodyRequest data on database.
+	if _, err := statement.Exec(newUser.Name, newUser.Email, ID); err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("UpdateUser: Error on execute insertion."))
+		return
+	}
+
+	w.WriteHeader(200)
 }
