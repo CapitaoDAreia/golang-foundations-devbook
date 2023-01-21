@@ -13,8 +13,13 @@ func main() {
 	//Mux instance
 	router := mux.NewRouter()
 
-	//Routes
+	//ROUTES
+	//POST
 	router.HandleFunc("/users", server.CreateUser).Methods("POST")
+
+	//GET
+	router.HandleFunc("/users", server.SearchUsers).Methods("GET")
+	router.HandleFunc("/user/{id}", server.SearchUser).Methods("GET")
 
 	//General configs
 	var PORT string = ":80"

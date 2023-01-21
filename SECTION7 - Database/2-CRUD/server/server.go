@@ -66,3 +66,46 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 	w.Write([]byte(fmt.Sprintf("Success on insert, id %v", insertedId)))
 }
+
+// Search Users
+func SearchUsers(w http.ResponseWriter, r *http.Request) {
+	DB, err := database.Connect()
+	if err != nil {
+		w.Write([]byte("SearchUsers: Error on connect with database"))
+		return
+	}
+	defer DB.Close()
+
+	rows, err := DB.Query("SELECT * FROM users") //Queries are used for consultation only.
+	if err != nil {
+		w.Write([]byte("SearchUsers: Error on consult for users."))
+		return
+	}
+	defer rows.Close()
+
+	var users []user
+	for rows.Next() { //Iterates over query response (rows).
+		var user user
+
+		//Copy the values in rows to the var user declared above. The parameters is the address to copy the values.
+		if err := rows.Scan(&user.Id, &user.Name, &user.Email); err != nil {
+			w.Write([]byte("SearchUsers: Error on scan for user."))
+			return
+		}
+
+		users = append(users, user) //Append the user of iteration in the users slice.
+	}
+
+	w.WriteHeader(200)
+
+	//Encodes users and send as a response
+	if err := json.NewEncoder(w).Encode(users); err != nil {
+		w.Write([]byte("SearchUsers: Error on convert users to JSON."))
+		return
+	}
+}
+
+// Search User
+func SearchUser(w http.ResponseWriter, r *http.Request) {
+
+}
