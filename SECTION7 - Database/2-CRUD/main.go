@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crud/server"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,9 +10,14 @@ import (
 )
 
 func main() {
+	//Mux instance
 	router := mux.NewRouter()
 
-	var PORT string = "80"
-	fmt.Printf("Listening on port %v", PORT)
+	//Routes
+	router.HandleFunc("/users", server.CreateUser).Methods("POST")
+
+	//General configs
+	var PORT string = ":80"
+	fmt.Printf("Server is listening on port %v\n", PORT)
 	log.Fatal(http.ListenAndServe(PORT, router))
 }
